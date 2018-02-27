@@ -1,4 +1,4 @@
-#\<spine-avatar\>
+# \<spine-avatar\>
 
 `spine-avatar` displays the specified avatar image fit in a round area, or an initial from the
 respective name string if no image was specified or image failed to load.

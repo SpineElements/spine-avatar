@@ -155,7 +155,7 @@ custom properties can be inherited throughout the document, if needed).
       }
 
       _initialDivBackgroundColor(name, colors) {
-        const trimmedName = name.trim();
+        const trimmedName = (name || '').trim();
         let hashCode = 0;
         const max32BitValue = Math.pow(2, 32) - 1;
         for (let i = 0; i < trimmedName.length; i++) {
