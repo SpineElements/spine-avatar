@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+  <title>spine-badge demo</title>
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+  <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+  <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+  <link rel="import" href="../spine-avatar.html">
+
+  <style is="custom-style" include="demo-pages-shared-styles">
+    .center-horizontally {
+      display: flex;
+      align-items: center;
+    }
+    .center-horizontally > spine-avatar {
+      margin-right: 16px;
+    }
+  </style>
+</head>
+<body>
+<div class="vertical-section-container centered">
+
+  <h3>Avatar with a valid image URL</h3>
+  <demo-snippet>
+    <template>
+      <spine-avatar image-src="https://avatars0.githubusercontent.com/u/28807796?s=200&v=4">
+      </spine-avatar>
+    </template>
+  </demo-snippet>
+
+  <h3>Avatar without image URL with `name` attribute specified</h3>
+  <demo-snippet>
+    <template>
+      <spine-avatar name="Spine Avatar">
+      </spine-avatar>
+    </template>
+  </demo-snippet>
+
+  <h3>Avatar with an invalid image URL and `name` attribute specified</h3>
+  <demo-snippet>
+    <template>
+      <spine-avatar image-src="https://invalid.domain/invalid.jpg" name="Spine Avatar">
+      </spine-avatar>
+    </template>
+  </demo-snippet>
+
+  <h3>Avatars with custom sizes</h3>
+  <demo-snippet>
+    <template>
+      <div class="center-horizontally">
+        <spine-avatar image-src="https://avatars0.githubusercontent.com/u/28807796?s=200&v=4"
+                      name="Spine Avatar"
+                      style="width: 24px; height: 24px;">
+        </spine-avatar>
+        24px size set with `width` and `height` CSS attributes
+      </div>
+      <p>
+      <div class="center-horizontally">
+        <spine-avatar image-src="https://avatars0.githubusercontent.com/u/28807796?s=200&v=4"
+                      name="Spine Avatar"
+                      style="--spine-avatar-width: 24px; --spine-avatar-height: 24px;">
+        </spine-avatar>
+        24px size set with `--spine-avatar-width` and `--spine-avatar-height` custom CSS variables
+      </div>
+    </template>
+  </demo-snippet>
+
+
+</div>
+</body>
+</html>
