@@ -42,27 +42,25 @@ custom properties can be inherited throughout the document, if needed).
   <template>
     <style>
       :host {
-        display: block;
+        display: inline-block;
         width: var(--spine-avatar-width, 40px);
         height: var(--spine-avatar-height, 40px);
 
         font-size: var(--spine-avatar-font-size, 18px);
         font-weight: normal;
         color: white;
+
+        border-radius: 50%;
+        overflow: hidden;
+        /*
+          Works around a Chrome issue when overflow: hidden is ignored during parent layer
+          animation, see here: https://stackoverflow.com/a/27233053
+         */
+        transform: translateZ(0)
       }
       #image, #initial {
         width: 100%;
         height: 100%;
-
-        border-radius: 50%;
-        overflow: hidden;
-      }
-      #image {
-        /*
-          Works around a Chrome issue when overflow: hidden is ignored during animation (expansion),
-          see here: https://stackoverflow.com/a/24056662
-         */
-        z-index: 0;
       }
       #initial {
         @apply --layout;
