@@ -1,0 +1,171 @@
+<!--
+  ~ Copyright (c) 2000-2018 TeamDev Ltd. All rights reserved.
+  ~ TeamDev PROPRIETARY and CONFIDENTIAL.
+  ~ Use is subject to license terms.
+  -->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../iron-image/iron-image.html">
+
+<!--
+`spine-avatar` displays the specified avatar image fit in a round area, or an initial from the
+respective name string if no image was specified or image failed to load.
+
+The image can be specified using the `image-src` attribute, and the name string can be specified
+using the `name` attribute. The name is not displayed directly, and is only used to display a
+one-letter avatar when image is not available. In this case, the avatar's background color is chosen
+from a predefined list of colors, which can be customized using the `colors` property.
+
+You should specify at least one of `image-src` and `name` attributes.
+
+Example:
+```
+<spine-avatar image-url="https://avatars0.githubusercontent.com/u/28807796?s=200&v=4"
+              name="John Doe">
+</spine-avatar>
+```
+
+You can use the following CSS custom properties for customizing `spine-avatar`:
+
+Custom property         | Description         | Default
+------------------------|---------------------|----------
+`--paper-avatar-width`  | Width of an avatar  | `40px`
+`--paper-avatar-height` | Height of an avatar | `40px`
+
+Similar to `--paper-avatar-width` and `--paper-avatar-height` CSS custom properties, you can specify
+the avatar's size using the CSS `width` and `height` properties (with the difference being that
+custom properties can be inherited throughout the document, if needed).
+-->
+<dom-module id="spine-avatar">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+        width: var(--spine-avatar-width, 40px);
+        height: var(--spine-avatar-height, 40px);
+
+        font-size: var(--spine-avatar-font-size, 18px);
+        font-weight: normal;
+        color: white;
+
+        border-radius: 50%;
+        overflow: hidden;
+        /*
+          Works around a Chrome issue when overflow: hidden is ignored during parent layer
+          animation, see here: https://stackoverflow.com/a/27233053
+         */
+        transform: translateZ(0)
+      }
+      #image, #initial {
+        width: 100%;
+        height: 100%;
+      }
+      #initial {
+        @apply --layout;
+        @apply --layout-center;
+        @apply --layout-center-justified;
+      }
+      .hidden,
+      #initial.hidden /* increase this rule's specificity to override the `display` declaration
+                         from the `#initial` rule above */ {
+        display: none;
+      }
+    </style>
+
+    <iron-image id="image" src="[[imageSrc]]" sizing="contain"
+                error="{{_imageLoadingError}}" loading="{{_imageLoadingInProgress}}"
+                class$="[[_ironImageClass(imageSrc, _imageLoadingInProgress, _imageLoadingError)]]">
+    </iron-image>
+    <div id="initial" class$="[[_initialDivClass(imageSrc, _imageLoadingInProgress, _imageLoadingError)]]"
+         style="background-color: [[_initialDivBackgroundColor(name, colors)]]">
+      [[_getInitial(name)]]
+    </div>
+
+  </template>
+
+  <script>
+    class SpineAvatar extends Polymer.Element {
+      static get is() { return 'spine-avatar'; }
+
+      static get properties() {
+        return {
+          /**
+           * URL of an avatar image that should be displayed. If image URL is not specified, or if
+           * the image fails to load then the initial letter based on the `name` property will be
+           * displayed on a colored background.
+           */
+          imageSrc: String,
+
+          /**
+           * A string whose first letter will be displayed if no image is specified or an image
+           * fails to load. This string will also be used to to choose a background's avatar in such
+           * case. See the `colors` property.
+           */
+          name: String,
+
+          /**
+           * Defines an array of HTML color strings, which is used to display an avatar's background
+           * in case when an image cannot be displayed. `spine-avatar` will choose one of the colors
+           * from this array based on the `name` property: the same name (case sensitive) will
+           * always result in the same color in this array.
+           */
+          colors: {
+            type: Array,
+            value: [
+              /* This default list of colors is taken from the standard material palette colors:
+                 https://material.io/guidelines/style/color.html#color-color-palette
+                 The colors were chosen like this: for each of the colors, one of the "dark"
+                 colors (displaying white text on a colored background) -- the one with least
+                 intensity was taken, except black and grey, e.g. Red 400, Pink 400, Purple 300,
+                 etc.
+               */
+              '#EF5350', '#EC407A', '#BA68C8', '#9575CD', '#7986CB', '#1E88E5', '#0288D1', '#0097A7',
+              '#009688', '#43A047', '#558B2F', '#827717', '#E65100', '#F4511E', '#A1887F', '#78909C'
+            ]
+          }
+        };
+      }
+
+      _getInitial(name) {
+        if (name) {
+          return name.trim().charAt(0).toUpperCase();
+        } else {
+          return '';
+        }
+      }
+
+      _displayInitialBasedAvatar(imageSrc, imageLoadingInProgress, imageLoadingError) {
+        return !imageSrc || imageLoadingError;
+      }
+
+      _ironImageClass(imageSrc, imageLoadingInProgress, imageLoadingError) {
+        return this._displayInitialBasedAvatar(imageSrc, imageLoadingInProgress, imageLoadingError)
+            ? 'hidden'
+            : '';
+      }
+
+      _initialDivClass(imageSrc, imageLoadingInProgress, imageLoadingError) {
+        return this._displayInitialBasedAvatar(imageSrc, imageLoadingInProgress, imageLoadingError)
+            ? ''
+            : 'hidden';
+      }
+
+      _initialDivBackgroundColor(name, colors) {
+        const trimmedName = (name || '').trim();
+        let hashCode = 0;
+        const max32BitValue = Math.pow(2, 32) - 1;
+        for (let i = 0; i < trimmedName.length; i++) {
+          const thisCode = trimmedName.charCodeAt(i);
+          hashCode += (hashCode * 31 + thisCode) % max32BitValue;
+        }
+
+        const colorIndex = hashCode % colors.length;
+        return this.colors[colorIndex];
+      }
+    }
+
+    window.customElements.define(SpineAvatar.is, SpineAvatar);
+  </script>
+</dom-module>

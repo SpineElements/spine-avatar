@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright (c) 2000-2018 TeamDev Ltd. All rights reserved.
+  ~ TeamDev PROPRIETARY and CONFIDENTIAL.
+  ~ Use is subject to license terms.
+  -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>projwc-link-item test</title>
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+
+  <link rel="import" href="../spine-avatar.html">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Roboto, Noto, sans-serif;
+    }
+  </style>
+</head>
+<body>
+<test-fixture id="image-only">
+  <template>
+    <spine-avatar image-src="https://avatars0.githubusercontent.com/u/28807796?s=200&v=4">
+    </spine-avatar>
+  </template>
+</test-fixture>
+
+<test-fixture id="name-only">
+  <template>
+    <spine-avatar name="John Doe">
+    </spine-avatar>
+  </template>
+</test-fixture>
+
+<test-fixture id="image-and-name">
+  <template>
+    <spine-avatar image-src="https://avatars0.githubusercontent.com/u/28807796?s=200&v=4"
+                  name="John Doe">
+    </spine-avatar>
+  </template>
+</test-fixture>
+
+<test-fixture id="invalid-image-and-name">
+  <template>
+    <spine-avatar image-src="http://invalid.domain/invalid.jpg"
+                  name="John Doe">
+    </spine-avatar>
+  </template>
+</test-fixture>
+
+<test-fixture id="custom-size">
+  <template>
+    <spine-avatar image-src="https://avatars0.githubusercontent.com/u/28807796?s=200&v=4"
+                  name="John Doe" style="width: 24px; height: 48px;">
+    </spine-avatar>
+  </template>
+</test-fixture>
+
+<test-fixture id="custom-size-with-custom-vars">
+  <template>
+    <spine-avatar image-src="https://avatars0.githubusercontent.com/u/28807796?s=200&v=4"
+                  name="John Doe" style="--spine-avatar-width: 24px; --spine-avatar-height: 48px;">
+    </spine-avatar>
+  </template>
+</test-fixture>
+
+
+<script>
+  suite('<spine-avatar>', function() {
+
+    const defaultAvatarSize = 40;
+    const testUrl = 'https://avatars0.githubusercontent.com/u/28807796?s=200&v=4';
+    const testName = 'John Doe';
+
+    function waitForCondition(condition, completionCallback, timeoutMillis = 2000) {
+      const deadline = Date.now() + timeoutMillis;
+
+      let lastException = null;
+      function waitFor_internal(condition, completionCallback) {
+        if (Date.now() > deadline) {
+          assert.fail('Condition', 'Fulfilled in time',
+              `Timed out waiting for a condition (${timeoutMillis}). ${
+                lastException ? `Last exception message: ${lastException.message}` : ''
+              }`);
+        }
+        try {
+          if (condition()) {
+            completionCallback();
+            return;
+          }
+        } catch(e) {
+          lastException = e;
+          // waiting for condition() to return true without throwing an exception
+        }
+
+        setTimeout(() => waitFor_internal(condition, completionCallback), 20)
+      }
+
+      waitFor_internal(condition, completionCallback);
+    }
+
+    function assertContent(avatar, params) {
+      const ironImageParams = params.ironImage;
+      const initialDivParams = params.initialDiv;
+
+      const isDisplayed = element => getComputedStyle(element).display !== 'none';
+      const ironImage = avatar.shadowRoot.querySelector('#image');
+      const initialDiv = avatar.shadowRoot.querySelector('#initial');
+
+      if (ironImageParams !== undefined) {
+        assert.equal(isDisplayed(ironImage), ironImageParams !== null, 'Checking image visibility');
+        if (ironImageParams !== null) {
+          if (ironImageParams.imageSrc !== undefined) {
+            assert.equal(ironImage.src, ironImageParams.imageSrc)
+          }
+          if (ironImageParams.loaded !== undefined) {
+            assert.equal(ironImage.loaded, ironImageParams.loaded,
+                'Checking the image\'s `loaded` property value');
+          }
+          if (ironImageParams.error !== undefined) {
+            assert.equal(ironImage.error, ironImageParams.error,
+                'Checking the image\'s `error` property value');
+          }
+        }
+      }
+      if (initialDivParams !== undefined) {
+        assert.equal(isDisplayed(initialDiv), initialDivParams !== null,
+            'Checking initial div element\'s visibility');
+        if (initialDivParams !== null) {
+          if (initialDivParams.text !== undefined) {
+            const innerHTML = initialDiv.innerHTML.trim();
+            assert.equal(innerHTML, initialDivParams.text,
+                'Checking initial div element\'s content');
+            assert.equal(initialDiv.innerText, innerHTML,
+                'Make sure that inner HTML is same as inner text');
+          }
+        }
+      }
+    }
+
+    function assertSize(element, expectedWidth, expectedHeight, message) {
+      assert.equal(element.offsetWidth, expectedWidth, `${message}: checking width`);
+      assert.equal(element.offsetHeight, expectedHeight, `${message}: checking height`);
+    }
+
+    test('Rendered correctly with `image-src` only', (done) => {
+      const avatar = fixture('image-only');
+      assertSize(avatar, defaultAvatarSize, defaultAvatarSize, 'Checking initial size');
+      waitForCondition(() => {
+        assertContent(avatar, {
+          ironImage: {
+            imageSrc: testUrl,
+            loaded: true,
+            error: false
+          },
+          initialDiv: null
+        });
+        assertSize(avatar, defaultAvatarSize, defaultAvatarSize,
+            'Ensure size has not changed after an image is loaded');
+        return true;
+      }, () => done());
+    });
+
+    test('Rendered correctly with `name` only', (done) => {
+      const avatar = fixture('name-only');
+      assertSize(avatar, defaultAvatarSize, defaultAvatarSize, 'Checking initial size');
+      waitForCondition(() => {
+        assertContent(avatar, {
+          ironImage: null,
+          initialDiv: {
+            text: testName.charAt(0)
+          }
+        });
+        assertSize(avatar, defaultAvatarSize, defaultAvatarSize,
+            'Ensure size has not changed after an image is loaded');
+        return true;
+      }, () => done());
+    });
+
+    test('Rendered correctly with both `image-src` and `name`', (done) => {
+      const avatar = fixture('image-and-name');
+      assertSize(avatar, defaultAvatarSize, defaultAvatarSize, 'Checking initial size');
+      waitForCondition(() => {
+        assertContent(avatar, {
+          ironImage: {
+            imageSrc: testUrl,
+            loaded: true,
+            error: false
+          },
+          initialDiv: null
+        });
+        assertSize(avatar, defaultAvatarSize, defaultAvatarSize,
+            'Ensure size has not changed after an image is loaded');
+        return true;
+      }, () => done());
+    });
+
+    test('Rendered correctly with invalid `image-src`', (done) => {
+      const avatar = fixture('invalid-image-and-name');
+      assertSize(avatar, defaultAvatarSize, defaultAvatarSize, 'Checking initial size');
+      waitForCondition(() => {
+        assertContent(avatar, {
+          ironImage: null,
+          initialDiv: {
+            text: testName.charAt(0)
+          }
+        });
+        assertSize(avatar, defaultAvatarSize, defaultAvatarSize,
+            'Ensure size has not changed after an image is loaded');
+        return true;
+      }, () => done(), 10000);
+    });
+
+    test('Size can be customized with `width` and `height` CSS attributes', () => {
+      const avatar = fixture('custom-size');
+      assertSize(avatar, 24, 48, 'Checking custom size');
+    });
+
+    test('Size can be customized with custom CSS variables', () => {
+      const avatar = fixture('custom-size');
+      assertSize(avatar, 24, 48, 'Checking custom size');
+    });
+  });
+</script>
+</body>
+</html>
