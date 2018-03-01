@@ -1,5 +1,10 @@
 language: node_js
 node_js: node
+
+# work around a Chrome startup crash issue:
+#   https://github.com/travis-ci/travis-ci/issues/8836#issuecomment-356339798
+#   https://github.com/travis-ci/travis-ci/issues/8836#issuecomment-356362524
+sudo: required
 addons:
   firefox: latest
 before_script:
