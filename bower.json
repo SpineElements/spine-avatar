@@ -1,6 +1,12 @@
 {
   "name": "spine-avatar",
   "description": "An element that displays an avatar image or an initial character when image is not available.",
+  "keywords": [
+    "web-components",
+    "web-component",
+    "polymer",
+    "avatar"
+  ],
   "main": "spine-avatar.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^2.0.0",

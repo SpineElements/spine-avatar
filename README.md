@@ -27,3 +27,9 @@ Custom property         | Description         | Default
 Similar to `--paper-avatar-width` and `--paper-avatar-height` CSS custom properties, you can specify
 the avatar's size using the CSS `width` and `height` properties (with the difference being that
 custom properties can be inherited throughout the document, if needed).
+
+# License
+
+Apache License
+
+Version 2.0, January 2004
